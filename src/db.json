@@ -1,0 +1,7 @@
+{
+  "data" : [
+      {"label":"Going to learn react", "tags":["redux"], "id": "nextId()"},
+      {"label":"That is so good" , "tags":["html", "css"], "id": "nextId()"}
+  ],
+  "activeTag" : ""
+}
