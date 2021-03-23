@@ -51,7 +51,7 @@ export default class PostAddForm extends Component {
                     type='tags'
                     placeholder='Введите тэги через запятую'
                     onChange={this.onValueTags}
-                    value={this.state.tags}
+                    value={this.state.newTags}
                 />
                 <Button
                     type='submit'

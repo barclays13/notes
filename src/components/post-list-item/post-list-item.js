@@ -8,8 +8,8 @@ export default class PostListItem extends Component {
     constructor(props){
         super(props);
         this.state = {
-            newLabel: this.props.label,
-            newTags: this.props.tags,
+            label: this.props.label,
+            tags: this.props.tags,
             change: false 
         }
 
@@ -22,20 +22,28 @@ export default class PostListItem extends Component {
 
     onValueChande(event) {
         this.setState({
-            newLabel: event.target.value
+            label: event.target.value
         })
     }
 
     onValueTags(event) {
+
         this.setState({
-            newTags: event.target.value
+            tags: event.target.value
         })
     }
     
     onChangeItem(event) {
+        let tag = ''
+        if ( typeof this.state.tags === 'object') {
+            tag = this.state.tags.join()
+        } else {
+            tag = this.state.tags
+        }         
+        
         event.preventDefault();
         if (this.state.change) {
-            this.props.onEditItem(this.state);
+            this.props.onEditItem(this.state.label, tag);
         }
 
         this.setState ({
@@ -45,11 +53,10 @@ export default class PostListItem extends Component {
 
     onDeleteTag(tag) {
         this.props.onDeleteTag(tag);
-
     }
 
     render() {
-        const {label, tags, onDelete } = this.props;
+        const {label, tags=[], onDelete } = this.props;
         const {change} = this.state;
 
         return (
@@ -70,16 +77,16 @@ export default class PostListItem extends Component {
                 </span>
                 <div className='d-flex justify-content-center align-items-center'>
                     <button 
-                    type='button'
-                    className='list-item__btn-pencil btn-sm'
-                    onClick={this.onChangeItem}>
-                        <i className={change ? 'fa fa-check' : 'fa fa-pencil'}></i>
+                        type='button'
+                        className='list-item__btn-pencil btn-sm'
+                        onClick={this.onChangeItem}>
+                            <i className={change ? 'fa fa-check' : 'fa fa-pencil'}></i>
                     </button>
                     <button 
-                    type='button' 
-                    className='list-item__btn-trash btn-sm'
-                    onClick={onDelete}>
-                        <i className='fa fa-trash-o'></i>
+                        type='button' 
+                        className='list-item__btn-trash btn-sm'
+                        onClick={onDelete}>
+                            <i className='fa fa-trash-o'></i>
                     </button>
                 </div>
             </div>

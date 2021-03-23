@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
-import nextId from "react-id-generator";
 
 import PostList from '../post-list';
 import PostAddForm from '../post-add-form';
 import FilterTag from  '../filter-tag';
-
 import './app.scss';
 
 export default class App extends Component {
@@ -12,45 +10,107 @@ export default class App extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            data : [
-                {label:"Going to learn react", tags:['react', "redux"], id: nextId()},
-                {label:"That is so good" , tags:['js', "html", "css"], id: nextId()}
-            ],
             activeTag : ''
         };
-        
+
         this.addItem = this.addItem.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
         this.editItem = this.editItem.bind(this);
         this.filterItems = this.filterItems.bind(this);
         this.deleteTag = this.deleteTag.bind(this);
-        // this.getData = this.getData.bind(this);
+        this.getData = this.getData.bind(this);
+        this.postData = this.postData.bind(this);
+        this.putItem = this.putItem.bind(this);    
     }
-    
-    // async getData() {
-    //     let  json = await require('../../data.json');
-    //     console.log('json', json)
-    //     let data = await JSON.parse(json)
-    //     console.log('data2  ', data)
-    // }
+
+    componentDidMount() {
+        this.getData()
+    }
+
+    createItem(label, tags) {
+        this.id = Date.now();
+        this.label = label;
+        this.tags = tags;
+    }
+
+    ChangeItem(id ,label, tags) {
+        this.id = id;
+        this.label = label;
+        this.tags = tags;
+    }
+
+    async getData() {
+        let response = await fetch('http://localhost:3000/data');
+        let data = await response.json();
+
+        this.setState({
+            data
+        });
+    }
+
+    async postData(note) {
+          await fetch('http://localhost:3000/data', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(note)
+          });
+          this.getData()
+    }
+
+    async deleteItem(id) {
+        await fetch(`http://localhost:3000/data/${id}`, {
+          method: 'DELETE',
+          headers: {
+              id: id
+          } 
+        });
+        this.getData()
+    }
+
+    async putItem(id, item) {
+        await fetch(`http://localhost:3000/data/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(item)
+            });
+        this.getData()
+    }
 
     addItem(body) {
-        if (body.newLabel.trim().length > 0) {
-            const newItem = {
-                label: body.newLabel,
-                tags: body.newTags.split(','),
-                id: nextId()
-            }
-            this.setState(({data}) => {
-                const newArr = [...data, newItem];
-                return {
-                    data: newArr
-                }
-            });
+        const {newLabel, newTags} = body
+        if (newLabel.trim().length > 0 && newTags.trim().length > 0) {
+            const item = new this.createItem(newLabel, newTags.split(','))
+            this.postData(item)
         }
     }
-    
+
+    editItem(id, label, tags) {
+        if (label.match(/#\w+/g)) {
+            tags = `${tags.trim()}, ${label.match(/#\w+/g).join()}`
+        } 
+        const newItem = new this.ChangeItem(id, label, tags.split(','))
+        
+        this.putItem(id, newItem);
+        this.getData();
+    }
+
+    deleteTag(id, tag) {
+        this.state.data.forEach(elem => {
+            if( elem.id === id ) {
+                const newArrTag = elem.tags.filter(elem => elem !== tag)
+                const newItem = new this.ChangeItem(id, elem.label, newArrTag)
+                this.putItem(id, newItem);
+            }
+        })
+        this.getData();
+    }
+
     filterItems(setActiveTag) {
+
         this.setState(({activeTag}) => {
             if (setActiveTag === "All") {
                 setActiveTag = ""
@@ -61,55 +121,16 @@ export default class App extends Component {
         });
     }
 
-    deleteItem(id) {
-        this.setState(({data}) => {
-            const index = data.findIndex(elem => elem.id === id);
-            const newArr = [...data.slice (0, index), ...data.slice (index+1)];
-            return {
-                data: newArr
-            }
-        });
-    }
-                     
-    editItem(id, body) {
-        this.setState(({data}) => {
-            const index = data.findIndex(elem => elem.id === id);
-
-            if (body.newLabel.match(/#\w+/g)) {
-                const addTags = body.newLabel.match(/#\w+/g);
-                body.newTags = `${body.newTags}, ${addTags.toString()}`
-            }
-
-            const changeItem = {label : body.newLabel.replace(/[\#]/g, ''), tags:[], id: id};
-            typeof body.newTags == 'string' ? changeItem.tags = body.newTags.split(',') : changeItem.tags = body.newTags;
-            
-            data[index] = changeItem;
-            return {
-                data: data
-            }
-        });
-    }
-
-    deleteTag(id, tag) {
-        this.setState(({data}) => {
-            const index = data.findIndex(elem => elem.id === id);
-            let newItem = data.filter(elem => elem.id === id);                            
-            const newArrTags = newItem[0].tags.filter( elem => elem !== tag);
-            data[index].tags = newArrTags
-            return {
-                data: data
-            }
-        });
-    }
-
     render() {
-        const {data, activeTag} = this.state;
-        
+        const {data = [],  activeTag} = this.state;
+
         let allTags = [];
+
         data.forEach( item => {
             allTags = allTags.concat(item.tags)
         })
         const uniqueTags = [...new Set(allTags)]; 
+
         let activeData;
         if (activeTag) {
           activeData = data.filter(elem => elem.tags.includes(activeTag))
@@ -125,13 +146,14 @@ export default class App extends Component {
                 <FilterTag
                     className="notes__filter"
                     onFilter={this.filterItems}
-                    tags={uniqueTags}/>
+                    tags={uniqueTags}
+                    />
                 <PostList 
                     posts={activeData}
                     onDeleteTag={this.deleteTag}
                     onEditItem={this.editItem}
                     onDelete={this.deleteItem}
-                />
+                /> 
             </div>
         )
     }
