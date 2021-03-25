@@ -13,18 +13,16 @@ export default class App extends Component {
             activeTag : ''
         };
 
-        this.addItem = this.addItem.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
-        this.editItem = this.editItem.bind(this);
         this.filterItems = this.filterItems.bind(this);
         this.deleteTag = this.deleteTag.bind(this);
         this.getData = this.getData.bind(this);
         this.postData = this.postData.bind(this);
-        this.putItem = this.putItem.bind(this);    
+        this.putItem = this.putItem.bind(this);
     }
 
     componentDidMount() {
-        this.getData()
+        this.getData();
     }
 
     createItem(label, tags) {
@@ -33,7 +31,7 @@ export default class App extends Component {
         this.tags = tags;
     }
 
-    ChangeItem(id ,label, tags) {
+    changeItem(id ,label, tags) {
         this.id = id;
         this.label = label;
         this.tags = tags;
@@ -79,20 +77,22 @@ export default class App extends Component {
         this.getData()
     }
 
-    addItem(body) {
-        const {newLabel, newTags} = body
-        if (newLabel.trim().length > 0 && newTags.trim().length > 0) {
-            const item = new this.createItem(newLabel, newTags.split(','))
-            this.postData(item)
+    addItem(item) {
+        const {newLabel : label, newTags : tag} = item;
+        const arrTags = tag.split(',').filter(elem => elem.trim());
+
+        if (label.trim() && tag.trim().length) {
+            const newItem = new this.createItem(label, arrTags)
+            this.postData(newItem)
         }
     }
 
     editItem(id, label, tags) {
         if (label.match(/#\w+/g) && !tags.includes(label.match(/#\w+/g))) {
-            tags = `${tags.trim()},${label.match(/#\w+/g).join()}`
+            tags = `${tags.trim()},${label.match(/#\w+/g).join()}`;
         } 
 
-        const newItem = new this.ChangeItem(id, label, tags.split(','));
+        const newItem = new this.changeItem(id, label, tags.split(','));
         this.putItem(id, newItem);
         this.getData();
     }
@@ -101,10 +101,10 @@ export default class App extends Component {
         this.state.data.forEach(elem => {
             if( elem.id === id ) {
                 const newArrTag = elem.tags.filter(elem => elem !== tag)
-                const newItem = new this.ChangeItem(id, elem.label, newArrTag)
+                const newItem = new this.changeItem(id, elem.label, newArrTag)
                 this.putItem(id, newItem);
             }
-        })
+        });
         // this.getData();
     }
 
@@ -140,7 +140,7 @@ export default class App extends Component {
             <div className="notes">
                 <PostAddForm
                     className="notes__add-item"
-                    onAdd={this.addItem}/>
+                    onAdd={(item) => this.addItem(item)}/>
                 <FilterTag
                     className="notes__filter"
                     onFilter={this.filterItems}
@@ -149,7 +149,7 @@ export default class App extends Component {
                 <PostList 
                     posts={activeData}
                     onDeleteTag={this.deleteTag}
-                    onEditItem={this.editItem}
+                    onEditItem={(id, label, tags) => this.editItem(id, label, tags)}
                     onDelete={this.deleteItem}
                 /> 
             </div>
