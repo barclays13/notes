@@ -4,7 +4,7 @@ import { ListGroup, ListGroupItem } from 'reactstrap';
 import './post-list.scss';
 
 const PostList = ({posts, onDelete, onEditItem, onDeleteTag}) => {
-
+        
         const elements = posts.filter((elem) => (typeof(elem) === 'object')).map((item) => {
             const {id, ...itemProps} = item;
     
