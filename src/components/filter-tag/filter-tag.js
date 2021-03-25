@@ -8,23 +8,27 @@ export default class FilterTag extends Component {
 
     constructor (props) {
         super(props);
-        this.onSetFilter = this.onSetFilter.bind(this);
+        this.state = {
+            activeFiletTag:'All'
+        };
     }
 
     onSetFilter (tag) {
         this.props.onFilter(tag);
+        this.setState({
+            activeFiletTag: tag
+        });
     }
 
     render() {
         return (
             <div className="filter">
                 <UncontrolledButtonDropdown
-                                        className="filter__name">
-                    <DropdownToggle caret>
+                    className="filter__name">
+                    <DropdownToggle  className="filter__name-width"caret>
                         Фильтрация по тегу
                     </DropdownToggle>
                     <DropdownMenu>
-
                         {this.props.tags.map(tag => { 
                             return (
                                 <DropdownItem  
@@ -35,6 +39,9 @@ export default class FilterTag extends Component {
                             )
                         })}
                     </DropdownMenu>
+                    <h4 >
+                        {this.state.activeFiletTag !== 'All' ? `Выбран тег: ${this.state.activeFiletTag}` : `Тег не выбра`}
+                    </h4>
                     <button 
                         type='button' 
                         className='filter__btn btn-sm'
