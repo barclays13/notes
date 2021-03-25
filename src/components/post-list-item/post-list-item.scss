@@ -1,6 +1,19 @@
 .list-item {
   font-size: 1.25rem;
 
+  .content-editable, .form-control{
+    margin-top: 3px;
+    width: 100%;
+    height: 35px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+
+    span {
+      margin: 0 3px;
+      color:red;
+    }
+  }
+
   &__label {
     display: block;
     line-height: 35px;

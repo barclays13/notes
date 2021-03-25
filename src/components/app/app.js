@@ -42,7 +42,6 @@ export default class App extends Component {
     async getData() {
         let response = await fetch('http://localhost:3000/data');
         let data = await response.json();
-
         this.setState({
             data
         });
@@ -89,11 +88,11 @@ export default class App extends Component {
     }
 
     editItem(id, label, tags) {
-        if (label.match(/#\w+/g)) {
-            tags = `${tags.trim()}, ${label.match(/#\w+/g).join()}`
+        if (label.match(/#\w+/g) && !tags.includes(label.match(/#\w+/g))) {
+            tags = `${tags.trim()},${label.match(/#\w+/g).join()}`
         } 
-        const newItem = new this.ChangeItem(id, label, tags.split(','))
-        
+
+        const newItem = new this.ChangeItem(id, label, tags.split(','));
         this.putItem(id, newItem);
         this.getData();
     }
@@ -106,14 +105,13 @@ export default class App extends Component {
                 this.putItem(id, newItem);
             }
         })
-        this.getData();
+        // this.getData();
     }
 
     filterItems(setActiveTag) {
-
         this.setState(({activeTag}) => {
             if (setActiveTag === "All") {
-                setActiveTag = ""
+                setActiveTag = "";
             }
             return {
                 activeTag: setActiveTag
@@ -127,15 +125,15 @@ export default class App extends Component {
         let allTags = [];
 
         data.forEach( item => {
-            allTags = allTags.concat(item.tags)
+            allTags = allTags.concat(item.tags);
         })
         const uniqueTags = [...new Set(allTags)]; 
 
         let activeData;
         if (activeTag) {
-          activeData = data.filter(elem => elem.tags.includes(activeTag))
+          activeData = data.filter(elem => elem.tags.includes(activeTag));
         } else {
-            activeData = data
+            activeData = data;
         }
 
         return (

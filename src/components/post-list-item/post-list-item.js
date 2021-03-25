@@ -2,6 +2,11 @@ import React, {Component} from 'react';
 import nextId from "react-id-generator";
 import { Input, Alert} from 'reactstrap';
 
+import ContentEditable from 'react-contenteditable'
+// import ReactDOM from 'react-dom';
+import 'draft-js/dist/Draft.css';
+
+
 import './post-list-item.scss';
 
 export default class PostListItem extends Component {
@@ -10,7 +15,8 @@ export default class PostListItem extends Component {
         this.state = {
             label: this.props.label,
             tags: this.props.tags,
-            change: false 
+            change: false,
+            htmlLabel: this.props.label
         }
 
         this.onValueChande = this.onValueChande.bind(this);
@@ -19,21 +25,29 @@ export default class PostListItem extends Component {
         this.onDeleteTag = this.onDeleteTag.bind(this);
     }
 
-
     onValueChande(event) {
+        let elemValue = event.target.value.trim();
+
+        if (elemValue.includes("&nbsp;")) {
+            elemValue = elemValue.substring(0, elemValue.length-6);
+        } if (elemValue.includes("&")) {
+            elemValue = elemValue.substring(0, elemValue.length-1);
+        } 
+
         this.setState({
-            label: event.target.value
+            htmlLabel: elemValue,
+            label: elemValue.replace(/<\/?[A-Za-z]+[^>]*>/gi, "")
         })
     }
 
     onValueTags(event) {
-
         this.setState({
             tags: event.target.value
         })
     }
     
     onChangeItem(event) {
+        
         let tag = ''
         if ( typeof this.state.tags === 'object') {
             tag = this.state.tags.join()
@@ -53,27 +67,46 @@ export default class PostListItem extends Component {
 
     onDeleteTag(tag) {
         this.props.onDeleteTag(tag);
+        const newTags = this.state.tags.filter(elem => elem != tag)
+        this.setState({
+            tags: newTags
+        })
     }
 
     render() {
-        const {label, tags=[], onDelete } = this.props;
-        const {change} = this.state;
+        const {change, htmlLabel} = this.state;
+        console.log('this.state', this.state)
+        const {label, tags=[], onDelete} = this.props;
+        let newLabelHTML = ``;
+    
+        htmlLabel.replace(/<\/?[A-Za-z]+[^>]*>/gi, "").split(' ').map( elem => {
+            if (elem.includes("&nbsp;")) {
+                elem = elem.substring(0, elem.length-6);
+            }
+            return tags.includes(elem.trim()) ? newLabelHTML += `<span>${elem.trim()} </span>` : newLabelHTML += `${elem.trim()} `;
+            
+            
+        })
 
         return (
         <div className="list-item">
             <div className="d-flex justify-content-between">
-                <Input 
-                    className = { change ? "d-flex" : "d-none"}
-                    type='text'
+                <ContentEditable
+                    className = { change ? "d-flex content-editable" : "d-none"}
+                    html={newLabelHTML}
+                    disabled={false}
                     onChange={this.onValueChande}
-                    defaultValue={label}/>
+                />
                 <Input
                     className = { change ? "d-flex" : "d-none"}
                     type='text'
                     onChange={this.onValueTags}
-                    defaultValue={tags}/>
+                    defaultValue={this.state.tags}/> 
                 <span className={change ? 'd-none' : 'list-item__label'}>
                     {label}
+                </span>
+                <span className={change ? 'd-none' : 'list-item__label'}>
+                    {tags.join()}
                 </span>
                 <div className='d-flex justify-content-center align-items-center'>
                     <button 
@@ -91,6 +124,7 @@ export default class PostListItem extends Component {
                 </div>
             </div>
             <hr/>
+
             <div className={change ? 'd-none' : 'd-flex'}>
                 {tags.map(tag => { 
                     return (
