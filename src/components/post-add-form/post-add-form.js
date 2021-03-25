@@ -9,26 +9,23 @@ export default class PostAddForm extends Component {
         this.state = {
             newLabel:'',
             newTags:'' 
-        }
-        this.onValueChande = this.onValueChande.bind(this);
-        this.onValueTags = this.onValueTags.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
+        };
     }
 
-    onValueChande (event) {
+    onValueChande (value) {
         this.setState({
-            newLabel: event.target.value
-        })
+            newLabel: value
+        });
     }
 
-    onValueTags (event) {
+    onValueTags (value) {
         this.setState({
-            newTags: event.target.value
-        })
+            newTags: value
+        });
     }
     
-    onSubmit (event) {
-        event.preventDefault();
+    onSubmit (e) {
+        e.preventDefault();
         this.props.onAdd(this.state);
         this.setState ({
             newLabel:'',
@@ -37,21 +34,22 @@ export default class PostAddForm extends Component {
     }
 
     render() {
+        const {newLabel, newTags} = this.state;
         return (
             <form 
                 className="add-item"
-                onSubmit={this.onSubmit}>
+                onSubmit={(e) => this.onSubmit(e)}>
                 <Input
                     type='newLabel'
                     placeholder='Введите вашу заметку...'
-                    onChange={this.onValueChande}
-                    value={this.state.newLabel}
+                    onChange={(e) => this.onValueChande(e.target.value)}
+                    value={newLabel}
                 />
                 <Input
                     type='tags'
                     placeholder='Введите тэги через запятую'
-                    onChange={this.onValueTags}
-                    value={this.state.newTags}
+                    onChange={(e) => this.onValueTags(e.target.value)}
+                    value={newTags}
                 />
                 <Button
                     type='submit'
