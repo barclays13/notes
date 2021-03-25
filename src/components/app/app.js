@@ -10,7 +10,8 @@ export default class App extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            activeTag : ''
+            activeTag : '',
+            url: "https://my-json-server.typicode.com/barclays13/json-server-notes/data"
         };
 
         this.deleteItem = this.deleteItem.bind(this);
@@ -38,7 +39,7 @@ export default class App extends Component {
     }
 
     async getData() {
-        let response = await fetch('http://localhost:3000/data');
+        let response = await fetch(`${this.state.url}`);
         let data = await response.json();
         this.setState({
             data
@@ -46,35 +47,35 @@ export default class App extends Component {
     }
 
     async postData(note) {
-          await fetch('http://localhost:3000/data', {
+          await fetch(`${this.state.url}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json;charset=utf-8'
             },
             body: JSON.stringify(note)
           });
-          this.getData()
+          this.getData();
     }
 
     async deleteItem(id) {
-        await fetch(`http://localhost:3000/data/${id}`, {
+        await fetch(`${this.state.url}/${id}`, {
           method: 'DELETE',
           headers: {
               id: id
           } 
         });
-        this.getData()
+        this.getData();
     }
 
     async putItem(id, item) {
-        await fetch(`http://localhost:3000/data/${id}`, {
+        await fetch(`${this.state.url}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
             body: JSON.stringify(item)
             });
-        this.getData()
+        this.getData();
     }
 
     addItem(item) {
@@ -82,8 +83,8 @@ export default class App extends Component {
         const arrTags = tag.split(',').filter(elem => elem.trim());
 
         if (label.trim() && tag.trim().length) {
-            const newItem = new this.createItem(label, arrTags)
-            this.postData(newItem)
+            const newItem = new this.createItem(label, arrTags);
+            this.postData(newItem);
         }
     }
 
@@ -98,10 +99,11 @@ export default class App extends Component {
     }
 
     deleteTag(id, tag) {
+        console.log(tag)
         this.state.data.forEach(elem => {
             if( elem.id === id ) {
-                const newArrTag = elem.tags.filter(elem => elem !== tag)
-                const newItem = new this.changeItem(id, elem.label, newArrTag)
+                const newArrTag = elem.tags.filter(elem => elem !== tag);
+                const newItem = new this.changeItem(id, elem.label, newArrTag);
                 this.putItem(id, newItem);
             }
         });
@@ -121,7 +123,7 @@ export default class App extends Component {
 
     render() {
         const {data = [],  activeTag} = this.state;
-
+        console.log(this.state)
         let allTags = [];
 
         data.forEach( item => {
