@@ -75,7 +75,6 @@ export default class PostListItem extends Component {
 
     render() {
         const {change, htmlLabel} = this.state;
-        console.log('this.state', this.state)
         const {label, tags=[], onDelete} = this.props;
         let newLabelHTML = ``;
     
@@ -84,8 +83,6 @@ export default class PostListItem extends Component {
                 elem = elem.substring(0, elem.length-6);
             }
             return tags.includes(elem.trim()) ? newLabelHTML += `<span>${elem.trim()} </span>` : newLabelHTML += `${elem.trim()} `;
-            
-            
         })
 
         return (
