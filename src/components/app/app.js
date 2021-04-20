@@ -11,7 +11,7 @@ export default class App extends Component {
         super(props);
         this.state = {
             activeTag : '',
-            url: "https://my-json-server.typicode.com/barclays13/json-server-notes/data"
+            url: "https://json-server-notes.herokuapp.com/data"
         };
 
         this.deleteItem = this.deleteItem.bind(this);
@@ -123,7 +123,7 @@ export default class App extends Component {
 
     render() {
         const {data = [],  activeTag} = this.state;
-        console.log(this.state)
+
         let allTags = [];
 
         data.forEach( item => {
